@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Safe Nest Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Link to CSS -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="bg-gray-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <div
+        class="sidebar bg-white text-gray-600 border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col"
+        id="sidebar"
+      >
+        <div
+          class="sidebar-header flex items-center justify-between p-6 border-b border-gray-200"
+        >
+          <h1 class="text-xl font-semibold text-orange-500">Safe Nest</h1>
+          <button
+            id="toggle-sidebar"
+            class="toggle-btn p-2 rounded-full hover:bg-orange-50"
+          >
+            <i data-lucide="arrow-left"></i>
+          </button>
+        </div>
+        <nav class="sidebar-nav flex-1 p-4 flex flex-col gap-3">
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200 active"
+          >
+            <i data-lucide="home"></i>
+            <span class="ml-3">Dashboard</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200"
+          >
+            <i data-lucide="users"></i>
+            <span class="ml-3">Doctors</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200"
+          >
+            <i data-lucide="calendar"></i>
+            <span class="ml-3">Appointments</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200"
+          >
+            <i data-lucide="user"></i>
+            <span class="ml-3">Patients</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200"
+          >
+            <i data-lucide="file-text"></i>
+            <span class="ml-3">Reports</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center p-3 text-gray-600 hover:bg-orange-50 hover:text-orange-500 rounded-lg transition-all duration-200"
+          >
+            <i data-lucide="settings"></i>
+            <span class="ml-3">Settings</span>
+          </a>
+        </nav>
+        <div
+          class="sidebar-footer p-4 flex items-center border-t border-gray-200"
+        >
+          <div
+            class="avatar w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center font-semibold"
+          >
+            RM
+          </div>
+          <div class="user-info ml-3 hidden">
+            <p class="text-sm font-medium text-gray-800">Hospital Name</p>
+            <span class="text-xs text-gray-500">Administrator</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content flex-1 overflow-y-auto">
+        <!-- Top Navigation -->
+        <div
+          class="top-nav bg-white shadow-sm p-6 flex justify-between items-center"
+        >
+          <h2 class="text-xl font-semibold text-gray-800">Dashboard</h2>
+          <div class="right-section flex items-center gap-6">
+            <div class="search-container relative">
+              <i
+                data-lucide="search"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              ></i>
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search patients..."
+                class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              />
+            </div>
+            <div
+              class="notification relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-orange-50 hover:text-orange-500 transition-all duration-200"
+            >
+              <i data-lucide="bell"></i>
+              <span
+                class="badge absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full"
+              ></span>
+            </div>
+            <div
+              class="user-avatar flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 transition-all duration-200"
+            >
+              <div
+                class="avatar w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center font-semibold"
+              >
+                RM
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Section -->
+        <div class="main-section max-w-7xl mx-auto p-8">
+          <!-- Stats Cards -->
+          <div
+            class="stats-cards grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            id="stats-cards"
+          >
+            <div
+              class="stats-card bg-white rounded-xl p-6 flex items-center shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="icon p-3 bg-orange-100 text-orange-500 rounded-lg mr-4"
+              >
+                <i data-lucide="users"></i>
+              </div>
+              <div class="info">
+                <p class="text-sm text-gray-500">Total Patients</p>
+                <h3
+                  id="total-patients"
+                  class="text-2xl font-semibold text-gray-800"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+            <div
+              class="stats-card bg-white rounded-xl p-6 flex items-center shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="icon p-3 bg-orange-100 text-orange-500 rounded-lg mr-4"
+              >
+                <i data-lucide="user-check"></i>
+              </div>
+              <div class="info">
+                <p class="text-sm text-gray-500">Visitors Today</p>
+                <h3
+                  id="visitors-today"
+                  class="text-2xl font-semibold text-gray-800"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+            <div
+              class="stats-card bg-white rounded-xl p-6 flex items-center shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="icon p-3 bg-orange-100 text-orange-500 rounded-lg mr-4"
+              >
+                <i data-lucide="bed"></i>
+              </div>
+              <div class="info">
+                <p class="text-sm text-gray-500">Available Beds</p>
+                <h3
+                  id="available-beds"
+                  class="text-2xl font-semibold text-gray-800"
+                >
+                  0
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid -->
+          <div class="dashboard-grid grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="left-column col-span-2">
+              <!-- Hub Capacity Chart -->
+              <div class="card bg-white rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                  Hub Capacity
+                </h3>
+                <div class="chart-container h-64">
+                  <canvas id="hub-capacity-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Patient Table -->
+              <div class="card bg-white rounded-xl shadow-sm mb-6">
+                <div
+                  class="patient-table-header flex justify-between items-center p-5 border-b border-gray-100"
+                >
+                  <h3
+                    class="text-lg font-semibold text-gray-800 flex items-center gap-3"
+                  >
+                    <span class="text-orange-500"
+                      ><i data-lucide="users"></i
+                    ></span>
+                    Patient Overview
+                  </h3>
+                  <button
+                    class="add-patient-btn flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200"
+                    id="open-modal-btn"
+                  >
+                    <i data-lucide="plus"></i> Add Patient
+                  </button>
+                </div>
+                <div class="table-container">
+                  <table id="patient-table" class="w-full text-sm">
+                    <thead>
+                      <tr>
+                        <th class="text-left">Patient</th>
+                        <th class="text-left">Band Status</th>
+                        <th class="text-left">Hub</th>
+                        <th class="text-left">RFID Verified</th>
+                        <th class="text-left">Alert</th>
+                        <th class="text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="patient-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+              <!-- Hub Details -->
+              <div class="card bg-white rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                  Hub Details
+                </h3>
+                <div id="hub-details"></div>
+              </div>
+
+              <!-- Bar Chart -->
+              <div class="card bg-white rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                  Bed Status Over Time
+                </h3>
+                <div class="chart-container h-64">
+                  <canvas id="bar-chart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Patient Modal -->
+    <div
+      class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+      id="add-patient-modal"
+    >
+      <div class="modal-content bg-white rounded-xl w-full max-w-lg shadow-2xl">
+        <div
+          class="modal-header flex justify-between items-center p-6 border-b border-gray-200"
+        >
+          <h3 class="text-lg font-semibold text-gray-800">Add New Patient</h3>
+          <button
+            id="close-modal-btn"
+            class="p-2 rounded-full hover:bg-orange-50"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body p-6">
+          <div
+            class="error hidden flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg mb-6"
+            id="modal-error"
+          >
+            <i data-lucide="alert-circle"></i>
+            <span></span>
+          </div>
+          <form id="add-patient-form" class="space-y-6">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-600"
+                >Name <span class="text-red-500">*</span></label
+              >
+              <input
+                type="text"
+                id="name"
+                required
+                class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label for="age" class="block text-sm font-medium text-gray-600"
+                >Age <span class="text-red-500">*</span></label
+              >
+              <input
+                type="number"
+                id="age"
+                required
+                class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label
+                for="guardianName"
+                class="block text-sm font-medium text-gray-600"
+                >Guardian Name <span class="text-red-500">*</span></label
+              >
+              <input
+                type="text"
+                id="guardianName"
+                required
+                class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label
+                for="rfidUid"
+                class="block text-sm font-medium text-gray-600"
+                >RFID UID <span class="text-red-500">*</span></label
+              >
+              <input
+                type="text"
+                id="rfidUid"
+                required
+                class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              />
+            </div>
+            <div>
+              <label
+                for="bandUid"
+                class="block text-sm font-medium text-gray-600"
+                >Band UID <span class="text-red-500">*</span></label
+              >
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  id="bandUid"
+                  required
+                  class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  id="pair-with-band-btn"
+                  class="mt-1 px-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center gap-1"
+                >
+                  <i data-lucide="bluetooth" class="w-4 h-4"></i>
+                  <span>Pair</span>
+                </button>
+              </div>
+              <div id="ble-pairing-status" class="mt-2 text-sm"></div>
+              <div id="ble-pairing-devices" class="mt-2 space-y-2"></div>
+            </div>
+            <div>
+              <label for="hub" class="block text-sm font-medium text-gray-600"
+                >Hub <span class="text-red-500">*</span></label
+              >
+              <select
+                id="hub"
+                required
+                class="w-full mt-1 p-3 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 focus:border-orange-400 outline-none transition-all duration-200"
+              >
+                <option value="Hub 1">Hub 1</option>
+                <option value="Hub 2">Hub 2</option>
+                <option value="Hub 3">Hub 3</option>
+              </select>
+            </div>
+            <div
+              class="modal-footer flex justify-end gap-4 pt-4 border-t border-gray-200"
+            >
+              <button
+                type="button"
+                class="cancel px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all duration-200"
+                id="cancel-modal-btn"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="submit px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200"
+              >
+                Add Patient
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLE Devices Modal -->
+    <div
+      id="ble-devices-modal"
+      class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
+      <div class="modal-content bg-white rounded-xl w-full max-w-lg shadow-2xl">
+        <div
+          class="modal-header flex justify-between items-center p-6 border-b border-gray-200"
+        >
+          <h3 class="text-lg font-semibold text-gray-800">BLE Devices</h3>
+          <button
+            id="close-ble-modal-btn"
+            class="p-2 rounded-full hover:bg-blue-50"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body p-6">
+          <div id="ble-status" class="mb-4 text-sm"></div>
+          <div
+            id="ble-devices-list"
+            class="space-y-3 max-h-96 overflow-y-auto"
+          ></div>
+        </div>
+        <div
+          class="modal-footer flex justify-end gap-4 p-6 pt-4 border-t border-gray-200"
+        >
+          <button
+            id="refresh-ble-btn"
+            class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all duration-200"
+          >
+            Refresh
+          </button>
+          <button
+            id="close-ble-list-btn"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Link to JavaScript -->
+    <script src="script.js"></script>
+  </body>
+</html>

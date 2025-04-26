@@ -1,0 +1,496 @@
+/* Core Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth; /* Enable smooth scrolling for the entire page */
+}
+
+body {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 80px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Prevent content from flowing outside during animations */
+  position: sticky; /* Make sidebar sticky */
+  top: 0; /* Stick to top of viewport */
+  height: 100vh; /* Full height of viewport */
+}
+
+.sidebar.expanded,
+.sidebar.temp-expanded {
+  width: 280px;
+}
+
+/* Temp-expanded has higher z-index to appear on top */
+.sidebar.temp-expanded {
+  z-index: 100;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+  height: 80px;
+}
+
+.sidebar-nav a {
+  margin-bottom: 4px;
+  font-weight: 500;
+  border-radius: 10px;
+  position: relative; /* For adding animation effects */
+  overflow: hidden; /* For ripple effect */
+}
+
+.sidebar-nav a::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(249, 115, 22, 0.1);
+  border-radius: inherit;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.3s;
+}
+
+.sidebar-nav a:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition: 0s;
+}
+
+.sidebar-nav a i {
+  min-width: 24px;
+  transition: transform 0.3s ease; /* Add animation to icons */
+}
+
+.sidebar-nav a span {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateX(-10px); /* Start from slightly left */
+}
+
+.sidebar.expanded .sidebar-nav a span,
+.sidebar.temp-expanded .sidebar-nav a span {
+  display: block;
+  opacity: 1;
+  transform: translateX(0); /* Move to normal position */
+}
+
+/* Apply hover effect to icon */
+.sidebar-nav a:hover i {
+  transform: scale(1.2);
+}
+
+.sidebar-nav a.active {
+  background-color: #fff7ed;
+  color: #f97316;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.1);
+}
+
+/* Add indicator for active link */
+.sidebar-nav a.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #f97316;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.sidebar-footer .user-info {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateX(-10px);
+}
+
+.sidebar.expanded .sidebar-footer .user-info,
+.sidebar.temp-expanded .sidebar-footer .user-info {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toggle-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #fff7ed;
+  color: #f97316;
+  transform: rotate(15deg);
+}
+
+.toggle-btn i {
+  transition: transform 0.3s ease;
+}
+
+.sidebar.expanded .toggle-btn i {
+  transform: rotate(180deg);
+}
+
+/* Main Content */
+.main-content {
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+}
+
+.top-nav {
+  height: 80px;
+  border-bottom: 1px solid #f1f5f9;
+  position: sticky; /* Make navbar sticky */
+  top: 0; /* Stick to top of viewport */
+  z-index: 40; /* Ensure navbar stays above other content */
+  background-color: #fff; /* Ensure background is opaque */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03); /* Add subtle shadow for depth */
+}
+
+/* Search Component */
+.search-container {
+  min-width: 280px;
+}
+
+.search-container input {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+  width: 320px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Stats Cards */
+.stats-cards {
+  margin-top: 1.5rem;
+}
+
+.stats-card {
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(241, 245, 249, 0.8);
+}
+
+.stats-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+  transform: translateY(-5px);
+}
+
+.stats-card .icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover .icon {
+  transform: scale(1.1);
+}
+
+/* Dashboard Cards */
+.card {
+  border-radius: 16px;
+  margin-top: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(241, 245, 249, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+.chart-container {
+  margin-top: 1rem;
+  position: relative;
+  height: 280px;
+}
+
+/* Table Styling */
+.table-container {
+  margin-top: 1rem;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+#patient-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+#patient-table thead {
+  background-color: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#patient-table thead th {
+  font-weight: 600;
+  color: #4b5563;
+  padding: 1rem 1.25rem;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+#patient-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+#patient-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+#patient-table tbody tr:hover {
+  background-color: #fff7ed !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
+}
+
+#patient-table td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+}
+
+.patient-info .avatar {
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+}
+
+#patient-table tbody tr:hover .patient-info .avatar {
+  background-color: #fdba74;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+#patient-table tbody tr:hover .status {
+  transform: scale(1.05);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+#patient-table tbody tr:hover .actions {
+  opacity: 1;
+}
+
+.actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.actions button:hover {
+  transform: scale(1.1);
+}
+
+.actions button.edit:hover {
+  background-color: #ffedd5;
+  color: #ea580c;
+}
+
+.actions button.delete:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.rfid-verified,
+.alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.rfid-verified i,
+.alert i {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Main Content - Reduce side spacing */
+.main-section {
+  max-width: 100%;
+  padding: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .main-section {
+    padding: 1.5rem 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .main-section {
+    padding: 2rem;
+  }
+}
+
+.card {
+  padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+/* Styles for emergency alert container */
+#emergency-alert-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+
+/* Animation for sliding down the alert */
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Animation for sliding up the alert */
+@keyframes slide-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* Class for slide-down animation */
+.animate-slide-down {
+  animation: slide-down 0.5s ease forwards;
+}
+
+/* Class for slide-up animation */
+.animate-slide-up {
+  animation: slide-up 0.5s ease forwards;
+}
+
+/* Bluetooth Button Styling */
+#pair-with-band-btn {
+  background-color: #2563eb;
+  color: white;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#pair-with-band-btn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#pair-with-band-btn:active {
+  transform: translateY(0);
+}
+
+#pair-with-band-btn i {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* Add Tag Button Enhancement */
+#add-tag-btn {
+  position: relative;
+  overflow: hidden;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
+}
+
+#add-tag-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(249, 115, 22, 0.4);
+}
+
+#add-tag-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+#add-tag-btn:hover::after {
+  transform: translateY(0);
+}
