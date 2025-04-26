@@ -44,7 +44,7 @@ lucide.createIcons();
 const initialPatients = [
   {
     id: "P001",
-    name: "John Doe",
+    name: "Munku er maaa",
     bandStatus: "In Range",
     hub: "Hub 1",
     rfidVerified: "Yes",
@@ -78,9 +78,9 @@ const hubData = [
 ];
 
 const growthData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-  occupied: [20, 22, 25, 23, 27, 30],
-  available: [10, 8, 5, 7, 3, 0],
+  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  occupied: [20, 22, 25, 23, 27, 30, 28],
+  available: [10, 8, 5, 7, 3, 0, 2],
 };
 
 // State
@@ -729,6 +729,7 @@ async function scanForBandPairing() {
         .querySelector(".select-band-btn")
         .addEventListener("click", () => {
           document.getElementById("bandUid").value = deviceName;
+          console.log("Selected device:", deviceName);
           blePairingStatus.innerHTML = `<div class="text-green-500">Selected band: ${deviceName}</div>`;
           blePairingDevices.innerHTML = "";
 
@@ -787,16 +788,110 @@ function handleDeviceDisconnection(device, deviceName) {
   // Remove from connected devices list
   connectedDevices = connectedDevices.filter((d) => d.device.id !== device.id);
 
-  // Show emergency alert
+  // Show emergency alert immediately for all devices
   showEmergencyDisconnectionAlert(deviceName);
 
   // Update patient status if this is a patient's device
   const patientWithDevice = patients.find((p) => p.bandUid === deviceName);
   if (patientWithDevice) {
+    // Update patient status
     patientWithDevice.bandStatus = "Out of Range";
     patientWithDevice.alert = "Emergency: Disconnected";
+
+    // Update UI
     renderPatientTable(patients);
+
+    // If patient detail view is open and it's this patient, update that too
+    if (currentPatientId === patientWithDevice.id) {
+      renderPatientDetailPage(currentPatientId);
+    }
+
+    // Update dashboard statistics and visualizations
+    updateStats();
+    renderHubDetails();
+    updateHubCapacityChart();
   }
+
+  // Check if this is the BabyTag - 01A device and attempt to reconnect
+  if (deviceName === "BabyTag - 01A") {
+    showNotification(
+      "BabyTag - 01A disconnected. Attempting to reconnect...",
+      "warning"
+    );
+
+    // Try to reconnect automatically
+    attemptReconnect(device, deviceName);
+  }
+}
+
+// Attempt to reconnect to a device
+let reconnectAttempts = {};
+
+function attemptReconnect(device, deviceName, attempt = 1) {
+  const maxAttempts = 2;
+  const reconnectDelay = 2000; // 2 seconds between attempts
+
+  // Initialize reconnect attempts counter if it doesn't exist
+  if (!reconnectAttempts[deviceName]) {
+    reconnectAttempts[deviceName] = 0;
+  }
+
+  reconnectAttempts[deviceName]++;
+
+  console.log(
+    `Attempting to reconnect to ${deviceName} (Attempt ${reconnectAttempts[deviceName]})`
+  );
+
+  setTimeout(async () => {
+    try {
+      // Try to connect to GATT server again
+      const server = await device.gatt.connect();
+
+      // Successfully reconnected
+      showNotification(`Successfully reconnected to ${deviceName}!`, "success");
+
+      // Update connected devices list
+      connectedDevices.push({
+        device: device,
+        name: deviceName,
+        server: server,
+        timestamp: new Date(),
+      });
+
+      // Update patient status if exists
+      const patientWithDevice = patients.find((p) => p.bandUid === deviceName);
+      if (patientWithDevice) {
+        patientWithDevice.bandStatus = "In Range";
+        patientWithDevice.alert = "None";
+        renderPatientTable(patients);
+      }
+
+      // Reset reconnect attempts counter
+      reconnectAttempts[deviceName] = 0;
+    } catch (error) {
+      console.error(
+        `Failed to reconnect to ${deviceName} (Attempt ${reconnectAttempts[deviceName]}):`,
+        error
+      );
+
+      // If we haven't exceeded max attempts, try again
+      if (reconnectAttempts[deviceName] < maxAttempts) {
+        showNotification(
+          `Reconnection attempt ${reconnectAttempts[deviceName]} failed. Retrying...`,
+          "warning"
+        );
+        attemptReconnect(device, deviceName, reconnectAttempts[deviceName] + 1);
+      } else {
+        // Max attempts reached, show emergency alert
+        showNotification(
+          `Failed to reconnect to ${deviceName} after ${maxAttempts} attempts`,
+          "error"
+        );
+        showEmergencyDisconnectionAlert(deviceName);
+        reconnectAttempts[deviceName] = 0;
+      }
+    }
+  }, reconnectDelay);
 }
 
 // Show emergency disconnection alert
@@ -1309,4 +1404,174 @@ renderPatientTable = function (patientList) {
 
   // Enhance the table
   enhancePatientTable();
+};
+
+// Function to update patient status
+function updatePatientStatus(patientId, newStatus, alertStatus = null) {
+  // Find patient in our array
+  const patient = patients.find((p) => p.id === patientId);
+
+  if (!patient) {
+    console.error(`Patient with ID ${patientId} not found`);
+    return false;
+  }
+
+  // Update the band status
+  patient.bandStatus = newStatus;
+
+  // Update alert status if provided
+  if (alertStatus !== null) {
+    patient.alert = alertStatus;
+  } else {
+    // Auto-set alert based on band status
+    if (newStatus === "In Range") {
+      patient.alert = "None";
+    } else if (newStatus === "Out of Range") {
+      patient.alert = "Out of Range";
+    } else if (newStatus === "Tampered") {
+      patient.alert = "Tampered";
+    }
+  }
+
+  // Update timestamp to now
+  patient.timestamp = new Date().toLocaleString();
+
+  // Update UI
+  renderPatientTable(patients);
+
+  // If patient detail view is open and it's this patient, update that too
+  if (currentPatientId === patientId) {
+    renderPatientDetailPage(patientId);
+  }
+
+  // Update dashboard statistics and visualizations
+  updateStats();
+  renderHubDetails();
+  updateHubCapacityChart();
+
+  // Show notification
+  const statusColors = {
+    "In Range": "success",
+    "Out of Range": "warning",
+    Tampered: "error",
+  };
+
+  showNotification(
+    `${patient.name}'s status updated to ${newStatus}`,
+    statusColors[newStatus] || "info"
+  );
+
+  return true;
+}
+
+// Function to add status update capability to patient table
+function addStatusUpdateMenu() {
+  // Find all status elements in the patient table
+  const statusElements = document.querySelectorAll(
+    ".patient-table-body .status"
+  );
+
+  statusElements.forEach((statusEl) => {
+    // Find the patient ID from closest row
+    const row = statusEl.closest("tr");
+    const patientIdElement = row.querySelector(
+      ".details .text-xs.text-gray-500"
+    );
+    if (!patientIdElement) return;
+
+    const patientId = patientIdElement.textContent.trim();
+
+    // Make status clickable
+    statusEl.style.cursor = "pointer";
+    statusEl.title = "Click to update status";
+
+    // Add click event to show status options
+    statusEl.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent row click event
+
+      // Create and show status menu
+      showStatusUpdateMenu(e, patientId, statusEl);
+    });
+  });
+}
+
+// Function to show status update menu
+function showStatusUpdateMenu(event, patientId, statusElement) {
+  // Remove any existing menus first
+  const existingMenu = document.getElementById("status-update-menu");
+  if (existingMenu) existingMenu.remove();
+
+  // Get current position
+  const rect = statusElement.getBoundingClientRect();
+
+  // Create menu
+  const menu = document.createElement("div");
+  menu.id = "status-update-menu";
+  menu.className =
+    "absolute bg-white rounded-lg shadow-lg z-50 py-2 min-w-[180px]";
+  menu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+  menu.style.left = `${rect.left + window.scrollX}px`;
+
+  // Add menu options
+  const options = [
+    { status: "In Range", class: "text-green-600", icon: "check-circle" },
+    {
+      status: "Out of Range",
+      class: "text-yellow-600",
+      icon: "alert-triangle",
+    },
+    { status: "Tampered", class: "text-red-600", icon: "alert-circle" },
+  ];
+
+  options.forEach((option) => {
+    const item = document.createElement("div");
+    item.className = `menu-item flex items-center gap-2 px-4 py-2 hover:bg-gray-50 cursor-pointer ${option.class}`;
+    item.innerHTML = `
+      <i data-lucide="${option.icon}" class="w-4 h-4"></i>
+      <span>${option.status}</span>
+    `;
+
+    item.addEventListener("click", () => {
+      // Update patient status
+      updatePatientStatus(patientId, option.status);
+
+      // Remove menu
+      menu.remove();
+    });
+
+    menu.appendChild(item);
+  });
+
+  // Add close option
+  const closeItem = document.createElement("div");
+  closeItem.className =
+    "menu-item flex items-center gap-2 px-4 py-2 hover:bg-gray-50 cursor-pointer text-gray-600 border-t border-gray-100 mt-2";
+  closeItem.innerHTML = `
+    <i data-lucide="x" class="w-4 h-4"></i>
+    <span>Cancel</span>
+  `;
+  closeItem.addEventListener("click", () => menu.remove());
+  menu.appendChild(closeItem);
+
+  // Add menu to document
+  document.body.appendChild(menu);
+
+  // Initialize icons
+  lucide.createIcons();
+
+  // Close menu when clicking outside
+  document.addEventListener("click", function closeMenu(e) {
+    if (!menu.contains(e.target) && e.target !== statusElement) {
+      menu.remove();
+      document.removeEventListener("click", closeMenu);
+    }
+  });
+}
+
+// Add to renderPatientTable
+const enhancedRenderPatientTable = renderPatientTable;
+renderPatientTable = function (patientList) {
+  enhancedRenderPatientTable(patientList);
+  enhancePatientTable();
+  addStatusUpdateMenu();
 };
